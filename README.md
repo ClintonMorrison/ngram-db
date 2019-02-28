@@ -1,6 +1,8 @@
 # ngram-db
 _A fast in-memory ngram database, written in Golang._
 
+## N-gram sets
+
 This is a key-value data store of **n-gram sets**. Here, an n-gram set is a collection of n-gram counts corresponding to a corpus of text.
 
 Users can create n-gram sets, add text to them, and then query the database to get counts and other information about n-grams in specific sets.
@@ -8,6 +10,29 @@ Users can create n-gram sets, add text to them, and then query the database to g
 The goal of this project is to provide a simpler way to persist, process,
 and retrieve n-gram data. 
 
+### Running Server
+This project can be built with:
+```
+go build
+```
+
+And then the database can be started with:
+```
+./ngramdb --server --port=3000
+```
+
+### Using Client
+
+To query the database, you need to open a TCP connection to it.
+
+There is a client library for connecting to the database included in this repository.
+
+```
+import "github.com/ngramdb"
+
+client := ngramdb.client.New("localhost:3000")
+response := client.send("ADD SET english(3);") 
+```
 
 ### Query Syntax
 
