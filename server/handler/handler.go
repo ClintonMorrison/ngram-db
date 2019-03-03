@@ -19,8 +19,11 @@ func (handler *QueryHandler) Handle(q *query.Query, err error) interface{} {
 			return responseFromError(err)
 	}
 
-	// TODO: DELETE SETS, LIST SETS
 	switch q.Type {
+	case query.GET_SETS:
+		return handler.getSets()
+	case query.DELETE_SET:
+		return handler.deleteSet(q.SetFields[0])
 	case query.ADD_SET:
 		return handler.addSet(q.SetFields[0], q.NumberFields[0])
 	case query.ADD_TEXT:
@@ -34,6 +37,21 @@ func (handler *QueryHandler) Handle(q *query.Query, err error) interface{} {
 	default:
 		return GenericResponse{false}
 	}
+}
+
+func (handler *QueryHandler) getSets() interface{} {
+	sets := handler.db.SetNames()
+	return SetsResponse{true, sets}
+}
+
+
+func (handler *QueryHandler) deleteSet(setName string) interface{} {
+	err := handler.db.RemoveSet(setName)
+	if err != nil {
+		return responseFromError(err)
+	}
+
+	return GenericResponse{true}
 }
 
 func (handler *QueryHandler) addSet(setName string, n int) interface{} {

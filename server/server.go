@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"bufio"
 	"strings"
-	"ngramdb/server/storage"
 	"ngramdb/server/query"
 	"ngramdb/server/database"
 	"ngramdb/server/handler"
@@ -15,7 +14,6 @@ import (
 
 type Server struct {
 	port string
-	store *storage.Store
 	database *database.Database
 	handler *handler.QueryHandler
 }

@@ -5,6 +5,8 @@ import "strconv"
 type Type int
 const (
 	INVALID Type = iota
+	GET_SETS
+	DELETE_SET
 	ADD_SET
 	ADD_TEXT
 	GET_NGRAMS
@@ -21,7 +23,7 @@ type Query struct {
 	NumberFields []int
 }
 
-func newQuery() *Query {
+func New() *Query {
 	query := Query{}
 	query.Type = INVALID
 	query.SetFields = make([]string, 0)

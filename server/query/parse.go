@@ -12,6 +12,8 @@ var placeholderPatterns = map[string]string{
 }
 
 var queryPatterns = map[Type]string{
+	GET_SETS: "GET SETS",
+	DELETE_SET: "DELETE SET <set>",
 	ADD_SET: "ADD SET <set>\\(<number>\\)",
 	ADD_TEXT: "ADD TEXT <text> IN <set>",
 	GET_NGRAMS: "GET NGRAMS\\(<number>\\) IN <set>",
@@ -42,7 +44,7 @@ func getQueryRegex() map[Type]*regexp.Regexp {
 var queryRegex = getQueryRegex()
 
 func Parse(rawQuery string) (*Query, error) {
-	parsedQuery := newQuery()
+	parsedQuery := New()
 	for queryType, regex := range queryRegex {
 		matches := regex.FindStringSubmatch(rawQuery)
 

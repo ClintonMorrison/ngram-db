@@ -6,7 +6,7 @@ import (
 
 func expectQuery(t *testing.T, query *Query, queryType Type, set string, text string, number int) {
 	if query.Type != queryType {
-		t.Errorf("Expected query type %s but got %s", queryType, query.Type)
+		t.Errorf("Expected query type %d but got %d", queryType, query.Type)
 	}
 
 	if set != "" && set != query.SetFields[0] {
@@ -22,6 +22,27 @@ func expectQuery(t *testing.T, query *Query, queryType Type, set string, text st
 	}
 }
 
+func TestParse_getSets(t *testing.T) {
+	query, _ := Parse("GET SETS")
+	expectQuery(
+		t,
+		query,
+		GET_SETS,
+		"",
+		"",
+		0)
+}
+
+func TestParse_deleteSet(t *testing.T) {
+	query, _ := Parse("DELETE SET test")
+	expectQuery(
+		t,
+		query,
+		DELETE_SET,
+		"test",
+		"",
+		0)
+}
 
 func TestParse_addSet(t *testing.T) {
 	query, _ := Parse("ADD SET test(4)")

@@ -20,6 +20,11 @@ func responseFromError(e error) ErrorResponse {
 	return ErrorResponse{false, typeName, e.Error()}
 }
 
+type SetsResponse struct {
+	Success bool `json:"success"`
+	Sets []string `json:"sets"`
+}
+
 type NGramsResponse struct {
 	Success bool `json:"success"`
 	NGrams map[ngram.NGram]int64 `json:"ngrams"`
