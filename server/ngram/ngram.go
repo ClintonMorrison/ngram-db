@@ -7,7 +7,7 @@ func ToNGrams(n int, text string) []NGram {
 	end := len(text) - n + 1
 
 	for i := 0; i < end; i++ {
-		j := i+n
+		j := i + n
 		ngram := NGram(text[i:j])
 		ngrams = append(ngrams, ngram)
 	}

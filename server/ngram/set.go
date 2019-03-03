@@ -1,12 +1,12 @@
 package ngram
 
 import (
-	"sort"
 	"fmt"
+	"sort"
 )
 
 type Set struct {
-	N int
+	N      int
 	counts map[int]map[NGram]int64
 	totals map[int]int64
 }
@@ -27,7 +27,6 @@ func NewSet(n int) *Set {
 func (s *Set) Exists() bool {
 	return s.N != 0
 }
-
 
 func (s *Set) Empty() bool {
 	return s.N == 0 || len(s.counts[1]) == 0
@@ -80,7 +79,6 @@ func (s *Set) NGrams(n int) []NGram {
 
 	return CastStringsToNGrams(strings)
 }
-
 
 func (s *Set) Print() {
 	for n := 1; n <= s.N; n++ {

@@ -1,9 +1,8 @@
 package database
 
 import (
-"testing"
+	"testing"
 )
-
 
 func TestDatabase_SetNames(t *testing.T) {
 	db := New()

@@ -1,9 +1,10 @@
 package handler
 
 import (
-	"ngramdb/server/query"
+	"ngramdb/responses"
 	"ngramdb/server/database"
 	"ngramdb/server/ngram"
+	"ngramdb/server/query"
 )
 
 type QueryHandler struct {
@@ -16,7 +17,7 @@ func New(db *database.Database) *QueryHandler {
 
 func (handler *QueryHandler) Handle(q *query.Query, err error) interface{} {
 	if err != nil {
-			return responseFromError(err)
+		return responses.FromError(err)
 	}
 
 	switch q.Type {
@@ -35,48 +36,47 @@ func (handler *QueryHandler) Handle(q *query.Query, err error) interface{} {
 	case query.GET_FREQ:
 		return handler.getFrequency(q.SetFields[0], q.TextFields[0])
 	default:
-		return GenericResponse{false}
+		return responses.Generic{false}
 	}
 }
 
 func (handler *QueryHandler) getSets() interface{} {
 	sets := handler.db.SetNames()
-	return SetsResponse{true, sets}
+	return responses.Sets{true, sets}
 }
-
 
 func (handler *QueryHandler) deleteSet(setName string) interface{} {
 	err := handler.db.RemoveSet(setName)
 	if err != nil {
-		return responseFromError(err)
+		return responses.FromError(err)
 	}
 
-	return GenericResponse{true}
+	return responses.Generic{true}
 }
 
 func (handler *QueryHandler) addSet(setName string, n int) interface{} {
 	err := handler.db.AddSet(setName, n)
 	if err != nil {
-		return responseFromError(err)
+		return responses.FromError(err)
 	}
-	return GenericResponse{true}
+	return responses.Generic{true}
 }
 
 func (handler *QueryHandler) addText(setName string, text string) interface{} {
 	err := handler.db.AddText(setName, text)
 	if err != nil {
-		return responseFromError(err)
+		return responses.FromError(err)
 	}
-	return GenericResponse{true}
+	return responses.Generic{true}
 }
 
 func (handler *QueryHandler) getNGrams(setName string, n int) interface{} {
 	ngrams, err := handler.db.CountsForSize(setName, n)
 	if err != nil {
-		return responseFromError(err)
+		return responses.FromError(err)
 	}
 
-	return NGramsResponse{true, ngrams}
+	return responses.NGrams{true, ngrams}
 }
 
 func (handler *QueryHandler) getCount(setName string, text string) interface{} {
@@ -84,12 +84,12 @@ func (handler *QueryHandler) getCount(setName string, text string) interface{} {
 
 	set, err := handler.db.GetSet(setName)
 	if err != nil {
-		return responseFromError(err)
+		return responses.FromError(err)
 	}
 
 	count := set.Count(ngram)
 
-	return CountResponse{true, count}
+	return responses.Count{true, count}
 }
 
 func (handler *QueryHandler) getFrequency(setName string, text string) interface{} {
@@ -97,12 +97,12 @@ func (handler *QueryHandler) getFrequency(setName string, text string) interface
 
 	set, err := handler.db.GetSet(setName)
 	if err != nil {
-		return responseFromError(err)
+		return responses.FromError(err)
 	}
 
 	freq := set.Freq(ngram)
 	count := set.Count(ngram)
 	total := set.Total(len(text))
 
-	return FreqResponse{true, freq, count, total}
+	return responses.Frequency{true, freq, count, total}
 }

@@ -1,37 +1,35 @@
 package server
 
 import (
-	"net"
-	"fmt"
 	"bufio"
-	"strings"
-	"ngramdb/server/query"
+	"encoding/json"
+	"fmt"
+	"net"
 	"ngramdb/server/database"
 	"ngramdb/server/handler"
-	"encoding/json"
+	"ngramdb/server/query"
+	"strings"
 )
 
-
 type Server struct {
-	port string
+	Port     int
 	database *database.Database
-	handler *handler.QueryHandler
+	handler  *handler.QueryHandler
 }
 
-func New(port string) *Server {
+func New(port int) *Server {
 	server := Server{}
 	server.database = database.New()
 	server.handler = handler.New(server.database)
-	server.port = port
+	server.Port = port
 
 	return &server
 }
 
 func (s *Server) Listen() {
-	listener, err := net.Listen("tcp4", ":" + s.port)
+	listener, err := net.Listen("tcp4", fmt.Sprintf(":%d", s.Port))
 	if err != nil {
-		fmt.Println(err)
-		return
+		panic(err)
 	}
 
 	defer listener.Close()
@@ -40,7 +38,7 @@ func (s *Server) Listen() {
 		connection, err := listener.Accept()
 		if err != nil {
 			fmt.Println(err)
-			return
+			continue
 		}
 		go s.handleRequest(connection)
 	}
@@ -56,6 +54,7 @@ func (s *Server) handleRequest(connection net.Conn) {
 		}
 
 		message := strings.TrimSpace(string(netData))
+		message = strings.TrimRight(message, ";")
 		if message == "STOP" {
 			break
 		}
@@ -67,7 +66,6 @@ func (s *Server) handleRequest(connection net.Conn) {
 }
 
 func (s *Server) processMessage(message string) string {
-	fmt.Println("Recieved " + message)
 	query, err := query.Parse(message)
 	response := s.handler.Handle(query, err)
 	return asJSON(response)

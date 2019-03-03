@@ -1,7 +1,7 @@
 package ngram
 
 import (
-"testing"
+	"testing"
 )
 
 func TestNewSet(t *testing.T) {
@@ -46,7 +46,6 @@ func TestSet_Empty(t *testing.T) {
 		t.Error("Expected Empty() to return false for non-empty set")
 	}
 }
-
 
 func TestSet_Total(t *testing.T) {
 	set := NewSet(3)

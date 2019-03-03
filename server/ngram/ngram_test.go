@@ -5,8 +5,8 @@ import (
 )
 
 type NGramTestCase struct {
-	N int
-	Text string
+	N      int
+	Text   string
 	NGrams []NGram
 }
 
@@ -32,7 +32,6 @@ func (testCase *NGramTestCase) check(t *testing.T) {
 	}
 }
 
-
 func TestToNGrams(t *testing.T) {
 	testCases := []NGramTestCase{
 		{1, "ABC", []NGram{"A", "B", "C"}},
@@ -57,4 +56,3 @@ func TestCastStringsToNGrams(t *testing.T) {
 	}
 
 }
-

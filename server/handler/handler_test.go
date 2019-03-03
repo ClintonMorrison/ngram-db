@@ -1,9 +1,10 @@
 package handler
 
 import (
-	"testing"
+	"ngramdb/responses"
 	"ngramdb/server/database"
 	"ngramdb/server/query"
+	"testing"
 )
 
 func TestQueryHandler_Handle(t *testing.T) {
@@ -15,7 +16,7 @@ func TestQueryHandler_Handle(t *testing.T) {
 
 	handler := New(db)
 	response := handler.Handle(q, nil)
-	_, isSetsResponse := response.(SetsResponse)
+	_, isSetsResponse := response.(responses.Sets)
 
 	if !isSetsResponse {
 		t.Error("Expected Handle() to return the appropriate response")

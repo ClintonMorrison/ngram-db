@@ -18,10 +18,9 @@ func (e DuplicateKeyError) Error() string {
 	return fmt.Sprintf("Key already exists: '%s'", e.Key)
 }
 
-
 type OutOfBoundsError struct {
 	Key string
-	N int
+	N   int
 }
 
 func (e OutOfBoundsError) Error() string {

@@ -31,7 +31,7 @@ func (db *Database) SetNames() []string {
 func (db *Database) GetSet(key string) (*ngram.Set, error) {
 	set := db.sets[key]
 	if set == nil || !set.Exists() {
-		return nil, NotFoundError{ key }
+		return nil, NotFoundError{key}
 	}
 
 	return set, nil
@@ -44,7 +44,7 @@ func (db *Database) CountsForSize(key string, n int) (map[ngram.NGram]int64, err
 	}
 
 	if n > set.N {
-		return nil, OutOfBoundsError{ key, n}
+		return nil, OutOfBoundsError{key, n}
 	}
 
 	return set.CountsForSize(n), nil
@@ -74,10 +74,9 @@ func (db *Database) AddText(key string, text string) error {
 func (db *Database) AddSet(key string, n int) error {
 	set := db.sets[key]
 	if set != nil && db.sets[key].Exists() {
-		return DuplicateKeyError{ key }
+		return DuplicateKeyError{key}
 	}
 
 	db.sets[key] = ngram.NewSet(n)
 	return nil
 }
-

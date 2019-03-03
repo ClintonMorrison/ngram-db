@@ -3,6 +3,7 @@ package query
 import "strconv"
 
 type Type int
+
 const (
 	INVALID Type = iota
 	GET_SETS
@@ -17,9 +18,9 @@ const (
 )
 
 type Query struct {
-	Type Type
-	SetFields []string
-	TextFields []string
+	Type         Type
+	SetFields    []string
+	TextFields   []string
 	NumberFields []int
 }
 

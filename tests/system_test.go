@@ -1,93 +1,124 @@
 package tests
 
-/*
+
 import (
 	"fmt"
 	"testing"
-	"go-redis-clone/client"
-	"go-redis-clone/server"
+	"ngramdb/client"
+	"ngramdb/server"
 )
 
 
 type testCase func (c *client.Client) func(*testing.T)
 
-func expectResponse(
-	t *testing.T,
-	c *client.Client,
-	message string,
-	expectedResponse string) {
-	response, err := c.Send(message)
-	if err != nil {
-		t.Error(err)
-	}
-
-	if response != expectedResponse {
-		t.Error(fmt.Sprintf("Expected '%s' but got '%s'", expectedResponse, response))
-	}
-}
 
 func TestSystem(t *testing.T) {
 	host := "localhost"
-	port := "3000"
-	address := fmt.Sprintf("%s:%s", host, port)
+	port := 3000
 
-	s := server.New(port)
-	go s.Listen()
-
-	c := client.New(address, true)
-	c.Connect()
 
 	testCases := map[string]testCase{
-		"FLUSHALL": testFlushAll,
-		"PING": testPing,
-		"SET and GET": testSetGet,
-		"KEYS": testKeys,
-		"RENAME": testRename,
+		//"SETS": testBasicSetOperations,
+		"NGRAMS": testBasicNGramQueries,
 	}
 
+	// Spin up a server for each test case
+	servers := make(map[string]*server.Server, len(testCases))
+	for name, _ := range testCases {
+		servers[name] = server.New(port)
+		go servers[name].Listen()
+		port++
+	}
+
+
 	for name, testCase := range testCases {
-		c.Send("FLUSHALL")
+		server := servers[name]
+		address := fmt.Sprintf("%s:%d", host, server.Port)
+
+		c := client.New(address, true)
+		err := c.Connect()
+
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("RUNNING TEST CASE %s ON %s", name, address)
 		t.Run(name, testCase(c))
 	}
 }
 
-func testPing(c *client.Client) func(*testing.T) {
+func testBasicSetOperations(c *client.Client) func(*testing.T) {
 	return func(t *testing.T) {
-		expectResponse(t, c, "PING", "PONG")
+		// Add a set
+		_, err := c.AddSet("test", 3)
+		assertNoError(t, err)
+
+		// Expect duplicate key error
+		_, err = c.AddSet("test", 3)
+		assertError(t, err)
+
+		// Get sets
+		setsResponse, err := c.GetSets()
+		if setsResponse.Sets[0] != "test" {
+			t.Error("Expected set to be added")
+		}
+
+		// Remove a set
+		_, err = c.DeleteSet("test")
+		assertNoError(t, err)
+
+		// Expect no such set error
+		_, err = c.DeleteSet("test")
+		assertError(t, err)
+
+
+		// Expect set removed
+		setsResponse, err = c.GetSets()
+		assertNoError(t, err)
+		if len(setsResponse.Sets) != 0 {
+			t.Error("Expected set to be deleted")
+		}
 	}
 }
 
-func testSetGet(c *client.Client) func(*testing.T) {
+func testBasicNGramQueries(c *client.Client) func(*testing.T) {
 	return func(t *testing.T) {
-		expectResponse(t, c, "SET test abcd", "")
-		expectResponse(t, c, "GET test", "abcd")
+		// Add a set
+		_, err := c.AddSet("test", 3)
+		assertNoError(t, err)
+
+		// Add text
+		_, err = c.AddText("test", "AABC")
+		assertNoError(t, err)
+
+		// Expect no such set error
+		_, err = c.AddText("test1", "AABC")
+		assertError(t, err)
+
+		// Get count
+		countResponse, err := c.GetCount("test", "A")
+		assertNoError(t, err)
+		if countResponse.Count != 2 {
+			t.Errorf("Expected count to be 2 but got %d", countResponse.Count)
+		}
+
+		// Get frequency
+		frequencyResponse, err := c.GetFrequency("test", "A")
+		assertNoError(t, err)
+		if frequencyResponse.Frequency != 0.5 {
+			t.Error("Expected frequency to be 0.5")
+		}
 	}
 }
 
-func testKeys(c *client.Client) func(*testing.T) {
-	return func(t *testing.T) {
-		c.Send("SET test1 abcd")
-		c.Send("SET test2 abcd")
-		expectResponse(t, c, "KEYS", "[\"test1\",\"test2\"]")
+func assertNoError(t *testing.T, e error) {
+	if e != nil {
+		t.Error("Unexpected error: " + e.Error())
 	}
 }
 
-func testFlushAll(c *client.Client) func(*testing.T) {
-	return func(t *testing.T) {
-		c.Send("SET test1 abcd")
-		expectResponse(t, c, "FLUSHALL", "")
-		expectResponse(t, c, "KEYS", "[]")
+func assertError(t *testing.T, e error) {
+	if e == nil {
+		t.Error("Expected error")
 	}
 }
-
-func testRename(c *client.Client) func(*testing.T) {
-	return func(t *testing.T) {
-		c.Send("SET test1 abcd")
-		expectResponse(t, c, "RENAME test1 test2", "")
-		expectResponse(t, c, "KEYS", "[\"test2\"]")
-		expectResponse(t, c, "GET test2", "abcd")
-	}
-}
-
-*/
-
