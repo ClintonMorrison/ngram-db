@@ -59,7 +59,7 @@ func TestDatabase_RemoveSet(t *testing.T) {
 	db.AddSet("test", 3)
 	db.RemoveSet("test")
 
-	if len(db.sets) != 0 {
+	if len(db.Sets) != 0 {
 		t.Error("Expected RemoveSet() to remove set")
 	}
 
@@ -73,7 +73,7 @@ func TestDatabase_AddText(t *testing.T) {
 	db := New()
 	db.AddSet("test", 3)
 	db.AddText("test", "ABC")
-	if db.sets["test"].Count("ABC") != 1 {
+	if db.Sets["test"].Count("ABC") != 1 {
 		t.Error("Expected add to add the ngram to the correct set")
 	}
 
@@ -87,7 +87,7 @@ func TestDatabase_AddSet(t *testing.T) {
 	db := New()
 	db.AddSet("test", 3)
 
-	if len(db.sets) != 1 {
+	if len(db.Sets) != 1 {
 		t.Error("Expected AddSet() to add a set")
 	}
 }

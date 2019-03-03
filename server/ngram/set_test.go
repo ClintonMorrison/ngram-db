@@ -12,12 +12,12 @@ func TestNewSet(t *testing.T) {
 		t.Error("Expected NewSet to set correct n")
 	}
 
-	if set.counts[4] == nil {
-		t.Error("Expected NewSet to initialize counts maps")
+	if set.Counts[4] == nil {
+		t.Error("Expected NewSet to initialize Counts maps")
 	}
 
-	if set.totals == nil {
-		t.Error("Expected NewSet to initialize totals map")
+	if set.Totals == nil {
+		t.Error("Expected NewSet to initialize Totals map")
 	}
 }
 

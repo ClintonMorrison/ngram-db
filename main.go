@@ -30,6 +30,11 @@ func main() {
 		"localhost",
 		"Hostname of server (defaults to localhost)")
 
+	dbFilename := flag.String(
+		"filename",
+		"ngrams.json",
+		"Filename for database (defaults to ngrams.json)")
+
 	flag.Parse()
 
 	if !*isServer && !*isClient {
@@ -37,9 +42,9 @@ func main() {
 	}
 
 	if *isServer && *isClient {
-		go runServer(*port)
+		go runServer(*port, *dbFilename)
 	} else if *isServer {
-		runServer(*port)
+		runServer(*port, *dbFilename)
 	}
 
 	if *isClient {
@@ -47,8 +52,8 @@ func main() {
 	}
 }
 
-func runServer(port int) {
-	s := server.New(port)
+func runServer(port int, filename string) {
+	s := server.New(port, filename)
 	s.Listen()
 }
 
@@ -65,3 +70,4 @@ func runClient(host string, port int) {
 		fmt.Println(response, err)
 	}
 }
+
