@@ -17,3 +17,13 @@ type DuplicateKeyError struct {
 func (e DuplicateKeyError) Error() string {
 	return fmt.Sprintf("Key already exists: '%s'", e.Key)
 }
+
+
+type OutOfBoundsError struct {
+	Key string
+	N int
+}
+
+func (e OutOfBoundsError) Error() string {
+	return fmt.Sprintf("Set %s does not support n-grams of length %d", e.Key, e.N)
+}

@@ -42,6 +42,10 @@ func (s *Set) Count(ngram NGram) int64 {
 	return s.counts[length][ngram]
 }
 
+func (s *Set) CountsForSize(n int) map[NGram]int64 {
+	return s.counts[n]
+}
+
 func (s *Set) Freq(ngram NGram) float64 {
 	length := len(ngram)
 	return float64(s.Count(ngram)) / float64(s.Total(length))
@@ -99,16 +103,4 @@ func (s *Set) Copy() *Set {
 	}
 
 	return set
-}
-
-func (s *Set) Union(setB *Set) *Set {
-	setA := s.Copy()
-	for i := 1; i <= setB.N; i++ {
-		setA.totals[i] += setB.totals[i]
-		for ngram, count := range setB.counts[i] {
-			setA.counts[i][ngram] += count
-		}
-	}
-
-	return setA
 }

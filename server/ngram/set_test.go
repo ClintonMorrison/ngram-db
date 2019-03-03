@@ -4,68 +4,106 @@ import (
 "testing"
 )
 
+func TestNewSet(t *testing.T) {
+	n := 4
+	set := NewSet(n)
 
-
-func TestSet(t *testing.T) {
-	set := NewSet(2)
-
-	// Test Empty()
-	isEmpty := set.Empty()
-	if !isEmpty {
-		t.Error("Expected Empty to return false")
+	if set.N != n {
+		t.Error("Expected NewSet to set correct n")
 	}
 
-	// Test addNGram()
-	set.addNGram("A")
-	if set.counts[1]["A"] != 1 {
-		t.Error("Expected addNGram to increment count")
+	if set.counts[4] == nil {
+		t.Error("Expected NewSet to initialize counts maps")
 	}
 
-	if set.totals[1] != 1 {
-		t.Error("Expected addNGram to increment total")
+	if set.totals == nil {
+		t.Error("Expected NewSet to initialize totals map")
+	}
+}
+
+func TestSet_Exists(t *testing.T) {
+	set := &Set{}
+
+	if set.Exists() {
+		t.Error("Expected Exists() to return false for uninitialized set")
 	}
 
-	// Test Empty()
-	isEmpty = set.Empty()
-	if isEmpty {
-		t.Error("Expected Empty to return false")
+	set = NewSet(3)
+	if !set.Exists() {
+		t.Error("Expected Exists() to return true for an initialized set")
+	}
+}
+
+func TestSet_Empty(t *testing.T) {
+	set := NewSet(3)
+
+	if !set.Empty() {
+		t.Error("Expected Empty() to return true for empty set")
 	}
 
-	// Test Count()
-	count := set.Count("A")
-	if count != 1 {
-		t.Error("Expected Count to return 1")
-	}
-
-	// Test Total()
-	total := set.Total(1)
-	if total != 1 {
-		t.Error("Expected Total to return total")
-	}
-
-	// Test Add()
 	set.Add("ABC")
-	if set.counts[1]["A"] != 2 {
-		t.Error("Expected Add() to increment 'A' count")
+	if set.Empty() {
+		t.Error("Expected Empty() to return false for non-empty set")
 	}
+}
 
-	if set.counts[2]["BC"] != 1 {
-		t.Error("Expected Add() to increment 'CD' count")
+
+func TestSet_Total(t *testing.T) {
+	set := NewSet(3)
+	set.Add("AAAB")
+	total := set.Total(1)
+	if total != 4 {
+		t.Error("Expected Total() to return 4")
 	}
+}
 
-	// Test Copy()
-	set2 := set.Copy()
-	if set2.counts[1]["A"] != 2 {
-		t.Error("Expected Copy() to return an identical set")
+func TestSet_Count(t *testing.T) {
+	set := NewSet(3)
+	set.Add("AAAB")
+	total := set.Count("A")
+	if total != 3 {
+		t.Error("Expected Count() to return 3")
 	}
+}
 
-	// Test Union()
-	setA := NewSet(2)
-	setA.Add("AB")
-	setB := NewSet(2)
-	setB.Add("BC")
-	setC := setA.Union(setB)
-	if setC.Count("B") != 2 {
-		t.Error("Expected Union() to combine counts from both sets")
+func TestSet_CountsForForSize(t *testing.T) {
+	set := NewSet(3)
+	set.Add("AAAB")
+	counts := set.CountsForSize(1)
+	if counts["A"] != 3 {
+		t.Error("Expected CountsForForSize() to return 3")
+	}
+}
+
+func TestSet_Freq(t *testing.T) {
+	set := NewSet(3)
+	set.Add("AAAB")
+	freq := set.Freq("A")
+	if freq != 0.75 {
+		t.Error("Expected CountsForForSize() to return .75")
+	}
+}
+
+func TestSet_addNGram(t *testing.T) {
+	set := NewSet(3)
+	set.addNGram("A")
+	set.addNGram("A")
+	count := set.Count("A")
+
+	if count != 2 {
+		t.Error("Expected addNGram to add the ngram")
+	}
+}
+
+func TestSet_NGrams(t *testing.T) {
+	set := NewSet(3)
+	set.Add("CABC")
+	ngrams := set.NGrams(2)
+	expected := []NGram{"AB", "BC", "CA"}
+
+	for i := 0; i < len(expected); i++ {
+		if ngrams[i] != expected[i] {
+			t.Error("Expected NGrams() to return ngrams in alphabetical order")
+		}
 	}
 }

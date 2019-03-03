@@ -2,98 +2,66 @@ package query
 
 import (
 	"regexp"
-	"fmt"
-	"strconv"
+	"strings"
 )
 
-/*
-Example queries:
-ADD SET <SET_NAME>(5)`
-ADD TEXT <text> TO <COLLECTIONS>
-GET <ATTRIBUTE> IN <COLLECTIONS>
- */
-
-const setNamePattern = "[a-zA-Z_\\-]+"
-const propertiesPattern = "\\(([1-9][0-9]*)\\)"
-const textPattern = "\"(.+)\""
-const numberPattern = "[1-9][0-9]*"
-
-var addSetQueryRegex = regexp.MustCompile(
-	fmt.Sprintf("^ADD SET (%s)%s", setNamePattern, propertiesPattern))
-
-var addTextQueryRegex = regexp.MustCompile(
-	fmt.Sprintf("^ADD TEXT\\(%s\\) TO (%s)", textPattern, setNamePattern))
-
-var getCountQueryRegex = regexp.MustCompile(
-	fmt.Sprintf("^GET COUNT OF %s IN (%s)", textPattern, setNamePattern))
-
-var getFreqQueryRegex = regexp.MustCompile(
-	fmt.Sprintf("^GET FREQ OF %s IN (%s)", textPattern, setNamePattern))
-
-var getNGramsQueryRegex = regexp.MustCompile(
-	fmt.Sprintf("^GET NGRAMS\\((%s)\\) IN (%s)", numberPattern, setNamePattern))
-
-
-func Parse(query string) interface{} {
-	match := addSetQueryRegex.FindStringSubmatch(query)
-	if match != nil {
-		return parseAddSet(match)
-	}
-
-	match = addTextQueryRegex.FindStringSubmatch(query)
-	if match != nil {
-		return parseAddText(match)
-	}
-
-	match = getCountQueryRegex.FindStringSubmatch(query)
-	if match != nil {
-		return parseCountQuery(match)
-	}
-
-	match = getFreqQueryRegex.FindStringSubmatch(query)
-	if match != nil {
-		return parseFreqQuery(match)
-	}
-
-	match = getNGramsQueryRegex.FindStringSubmatch(query)
-	if match != nil {
-		return parseNGramsQuery(match)
-	}
-
-	return nil
+var placeholderPatterns = map[string]string{
+"<set>": "(?P<set>[a-zA-Z_\\-]+)",
+"<text>":   "'(?P<text>.+)'",
+"<number>": "(?P<number>[1-9][0-9]*)",
 }
 
-func parseAddSet(match []string) AddSet {
-	setName := match[1]
-	n, _ := strconv.ParseInt(match[2], 10, 0)
-
-	return AddSet{ setName, int(n), true}
+var queryPatterns = map[Type]string{
+	ADD_SET: "ADD SET <set>\\(<number>\\)",
+	ADD_TEXT: "ADD TEXT <text> IN <set>",
+	GET_NGRAMS: "GET NGRAMS\\(<number>\\) IN <set>",
+	GET_COUNT: "GET COUNT OF <text> IN <set>",
+	GET_FREQ: "GET FREQ OF <text> IN <set>",
+	GET_COMPLETIONS: "GET COMPLETIONS OF <text> IN <set>",
+	GET_PROBABLE_SETS: "GET PROBABLE SETS OF <text> IN <set>",
 }
 
-func parseAddText(match []string) AddText {
-	text := match[1]
-	setName := match[2]
+func queryPatternToRegex(pattern string) *regexp.Regexp {
+	for placeholder, replacement := range placeholderPatterns {
+		pattern = strings.Replace(pattern, placeholder, replacement, -1)
+	}
 
-	return AddText{ setName,  text }
+	return regexp.MustCompile(pattern)
 }
 
-func parseCountQuery(match []string) GetCount {
-	text := match[1]
-	setName := match[2]
+func getQueryRegex() map[Type]*regexp.Regexp {
+	queryRegex := map[Type]*regexp.Regexp{}
 
-	return GetCount{ setName,  text }
+	for queryType, pattern := range queryPatterns {
+		queryRegex[queryType] = queryPatternToRegex(pattern)
+	}
+
+	return queryRegex
 }
 
-func parseFreqQuery(match []string) GetFreq {
-	text := match[1]
-	setName := match[2]
+var queryRegex = getQueryRegex()
 
-	return GetFreq{ setName,  text }
-}
+func Parse(rawQuery string) (*Query, error) {
+	parsedQuery := newQuery()
+	for queryType, regex := range queryRegex {
+		matches := regex.FindStringSubmatch(rawQuery)
 
-func parseNGramsQuery(match []string) GetNGrams {
-	n, _ := strconv.ParseInt(match[1], 10, 0)
-	setName := match[2]
+		if len(matches) == 0 {
+			continue
+		}
 
-	return GetNGrams{ setName,  int(n) }
+		parsedQuery.Type = queryType
+		matchNames := regex.SubexpNames()
+
+		for i := range matches {
+			parsedQuery.AddField(matchNames[i], matches[i])
+		}
+	}
+
+	if parsedQuery.Type == INVALID {
+		return nil, ParseError{rawQuery}
+	}
+
+
+	return parsedQuery, nil
 }

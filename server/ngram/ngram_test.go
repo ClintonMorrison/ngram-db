@@ -47,3 +47,14 @@ func TestToNGrams(t *testing.T) {
 		testCase.check(t)
 	}
 }
+
+func TestCastStringsToNGrams(t *testing.T) {
+	strings := []string{"A"}
+	ngrams := CastStringsToNGrams(strings)
+
+	if string(ngrams[0]) != "A" {
+		t.Error("Expected CastStringToNGrams to return the same strings")
+	}
+
+}
+

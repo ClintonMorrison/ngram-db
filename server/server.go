@@ -8,6 +8,8 @@ import (
 	"ngramdb/server/storage"
 	"ngramdb/server/query"
 	"ngramdb/server/database"
+	"ngramdb/server/handler"
+	"encoding/json"
 )
 
 
@@ -15,11 +17,13 @@ type Server struct {
 	port string
 	store *storage.Store
 	database *database.Database
+	handler *handler.QueryHandler
 }
 
 func New(port string) *Server {
 	server := Server{}
 	server.database = database.New()
+	server.handler = handler.New(server.database)
 	server.port = port
 
 	return &server
@@ -66,17 +70,17 @@ func (s *Server) handleRequest(connection net.Conn) {
 
 func (s *Server) processMessage(message string) string {
 	fmt.Println("Recieved " + message)
-	command := query.Parse(message)
-	response := ""
+	query, err := query.Parse(message)
+	response := s.handler.Handle(query, err)
+	return asJSON(response)
+}
 
-	if command == nil {
-		return "error\n"
-	}
+func asJSON(obj interface{}) string {
+	serialized, err := json.Marshal(obj)
 
-	response, err := s.database.AnswerQuery(command)
 	if err != nil {
-		return err.Error() + "\n"
+		return "{\"success\": false}"
 	}
 
-	return response + "\n"
+	return string(serialized)
 }

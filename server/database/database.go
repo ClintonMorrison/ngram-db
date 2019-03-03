@@ -2,10 +2,7 @@ package database
 
 import (
 	"ngramdb/server/ngram"
-	"ngramdb/server/query"
-	"fmt"
 )
-
 
 type Database struct {
 	sets map[string]*ngram.Set
@@ -17,7 +14,7 @@ func New() *Database {
 	return &database
 }
 
-func (db *Database) getSet(key string) (*ngram.Set, error) {
+func (db *Database) GetSet(key string) (*ngram.Set, error) {
 	set := db.sets[key]
 	if set == nil || !set.Exists() {
 		return nil, NotFoundError{ key }
@@ -26,8 +23,21 @@ func (db *Database) getSet(key string) (*ngram.Set, error) {
 	return set, nil
 }
 
+func (db *Database) CountsForSize(key string, n int) (map[ngram.NGram]int64, error) {
+	set, err := db.GetSet(key)
+	if err != nil {
+		return nil, err
+	}
+
+	if n > set.N {
+		return nil, OutOfBoundsError{ key, n}
+	}
+
+	return set.CountsForSize(n), nil
+}
+
 func (db *Database) Remove(key string) error {
-	_, err := db.getSet(key)
+	_, err := db.GetSet(key)
 	if err != nil {
 		return err
 	}
@@ -37,7 +47,7 @@ func (db *Database) Remove(key string) error {
 }
 
 func (db *Database) AddText(key string, text string) error {
-	set, err := db.getSet(key)
+	set, err := db.GetSet(key)
 	if err != nil {
 		return err
 	}
@@ -57,19 +67,3 @@ func (db *Database) AddSet(key string, n int) error {
 	return nil
 }
 
-func (db *Database) AnswerQuery(i interface{}) (string, error) {
-	switch q := i.(type) {
-	case query.AddSet:
-		return "", db.AddSet(q.SetName, q.N)
-	case query.AddText:
-		return "", db.AddText(q.SetName, q.Text)
-	case query.GetCount:
-		set, err := db.getSet(q.SetName)
-		if err != nil {
-			return "", err
-		}
-
-		return fmt.Sprintf("%d", set.Count(ngram.NGram(q.NGram))), nil
-	}
-	return "", nil // TODO: return error
-}
