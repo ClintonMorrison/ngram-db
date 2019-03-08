@@ -158,10 +158,10 @@ func (c *Client) GetCompletions(setName string, pattern string) (*responses.Comp
 	return response, err
 }
 
-func (c *Client) GetProbableSets(ngram string) (*responses.ProbableSets, error) {
-	query := fmt.Sprintf("GET PROBABLE SETS OF '%s'", ngram)
-	ptr, err := c.sendAndParse(query, &responses.ProbableSets{})
-	response, ok := ptr.(*responses.ProbableSets)
+func (c *Client) GetProbableSet(ngram string) (*responses.ProbableSet, error) {
+	query := fmt.Sprintf("GET PROBABLE SET OF '%s'", ngram)
+	ptr, err := c.sendAndParse(query, &responses.ProbableSet{})
+	response, ok := ptr.(*responses.ProbableSet)
 
 	if !ok {
 		return nil, err

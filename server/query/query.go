@@ -14,7 +14,7 @@ const (
 	GET_COUNT
 	GET_FREQ
 	GET_COMPLETIONS
-	GET_PROBABLE_SETS
+	GET_PROBABLE_SET
 )
 
 type Query struct {

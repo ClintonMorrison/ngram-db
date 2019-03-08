@@ -5,6 +5,7 @@ import (
 	"sort"
 	"encoding/json"
 	"io/ioutil"
+	"math"
 )
 
 type Database struct {
@@ -83,7 +84,44 @@ func (db *Database) AddSet(key string, n int) error {
 	return nil
 }
 
+func (db *Database) maxN() int {
+	maxN := 1
+	for _, set := range db.Sets {
+		if set.N > maxN {
+			maxN = set.N
+		}
+	}
+
+	return maxN
+}
+
+
+func (db *Database) ClosestSet(text string) string {
+	closestSetName := ""
+	closestDistance := math.Inf(1)
+
+	// Build set based on text
+	n := db.maxN()
+	textSet := ngram.NewSet(n)
+	textSet.Add(text)
+
+	// Compare to each set, find most similar one
+	for setName, set := range db.Sets {
+		distance := textSet.DistanceTo(set)
+		if distance < closestDistance {
+			closestDistance = distance
+			closestSetName = setName
+		}
+	}
+
+	return closestSetName
+}
+
 func (db *Database) ToFile(filename string) error {
+	if filename == "" {
+		return nil
+	}
+
 	serialized, err := json.Marshal(db)
 
 	if err != nil {

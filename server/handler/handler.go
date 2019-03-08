@@ -35,6 +35,8 @@ func (handler *QueryHandler) Handle(q *query.Query, err error) interface{} {
 		return handler.getCount(q.SetFields[0], q.TextFields[0])
 	case query.GET_FREQ:
 		return handler.getFrequency(q.SetFields[0], q.TextFields[0])
+	case query.GET_PROBABLE_SET:
+		return handler.getProbableSet(q.TextFields[0])
 	default:
 		return responses.Generic{false}
 	}
@@ -105,4 +107,9 @@ func (handler *QueryHandler) getFrequency(setName string, text string) interface
 	total := set.Total(len(text))
 
 	return responses.Frequency{true, freq, count, total}
+}
+
+func (handler *QueryHandler) getProbableSet(text string) interface{} {
+	setName := handler.db.ClosestSet(text)
+	return responses.ProbableSet{true, setName}
 }

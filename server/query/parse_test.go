@@ -100,7 +100,7 @@ func TestParse_getFreq(t *testing.T) {
 }
 
 func TestParse_getCompletions(t *testing.T) {
-	query, _ := Parse("GET COMPLETIONS OF 'ab' IN test")
+	query, _ := Parse("GET COMPLETION OF 'ab' IN test")
 	expectQuery(
 		t,
 		query,
@@ -111,12 +111,12 @@ func TestParse_getCompletions(t *testing.T) {
 }
 
 func TestParse_getProbableSet(t *testing.T) {
-	query, _ := Parse("GET PROBABLE SETS OF 'ab' IN test")
+	query, _ := Parse("GET PROBABLE SET OF 'ab'")
 	expectQuery(
 		t,
 		query,
-		GET_PROBABLE_SETS,
-		"test",
+		GET_PROBABLE_SET,
+		"",
 		"ab",
 		0)
 }

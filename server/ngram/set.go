@@ -3,6 +3,7 @@ package ngram
 import (
 	"fmt"
 	"sort"
+	"math"
 )
 
 type Set struct {
@@ -101,4 +102,30 @@ func (s *Set) Copy() *Set {
 	}
 
 	return set
+}
+
+func (s1 *Set) DistanceTo(s2 *Set) float64 {
+	n := int(math.Min(float64(s1.N), float64(s2.N)))
+	ngrams1 := s1.NGrams(n)
+	ngrams2 := s2.NGrams(n)
+	ngrams := make(map[NGram]bool)
+
+	for _, ngram := range ngrams1 {
+		ngrams[ngram] = true
+	}
+
+	for _, ngram := range ngrams2 {
+		ngrams[ngram] = true
+	}
+
+	distanceSquared := float64(0)
+
+	for ngram := range ngrams {
+		a := float64(s1.Freq(ngram))
+		b := float64(s2.Freq(ngram))
+
+		distanceSquared += math.Pow(a - b, 2)
+	}
+
+	return math.Sqrt(distanceSquared)
 }

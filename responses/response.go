@@ -62,7 +62,7 @@ type SetProbability struct {
 	Probability float64 `json:"probability"`
 }
 
-type ProbableSets struct {
-	Success bool             `json:"success"`
-	Sets    []SetProbability `json:"sets"`
+type ProbableSet struct {
+	Success bool `json:"success"`
+	Set string   `json:"set"`
 }

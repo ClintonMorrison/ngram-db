@@ -2,6 +2,7 @@ package ngram
 
 import (
 	"testing"
+	"math"
 )
 
 func TestNewSet(t *testing.T) {
@@ -104,5 +105,34 @@ func TestSet_NGrams(t *testing.T) {
 		if ngrams[i] != expected[i] {
 			t.Error("Expected NGrams() to return ngrams in alphabetical order")
 		}
+	}
+}
+
+func TestSet_DistanceTo(t *testing.T) {
+	set1 := NewSet(3)
+	set1.Add("ABCD")
+
+	set2 := NewSet(3)
+	set2.Add("ABCD")
+
+	d := set1.DistanceTo(set2)
+	if d != 0 {
+		t.Error("Expected identical sets to have 0 distance")
+	}
+
+	set3 := NewSet(1)
+	set3.Add("AABB")
+
+	d = set1.DistanceTo(set3)
+	if d != .5 {
+		t.Errorf("Expected distance to be .5 but got %f", d)
+	}
+
+	set4 := NewSet(1)
+	set4.Add("EFGH")
+
+	d = set1.DistanceTo(set4)
+	if d != math.Sqrt(0.5) {
+		t.Errorf("Expected distance to be sqrt(0.5) but got %f", d)
 	}
 }

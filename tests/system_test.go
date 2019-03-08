@@ -18,14 +18,15 @@ func TestSystem(t *testing.T) {
 
 
 	testCases := map[string]testCase{
-		//"SETS": testBasicSetOperations,
+		"SETS": testBasicSetOperations,
 		"NGRAMS": testBasicNGramQueries,
+		"ADVANCED": testAdvancedNGramQueries,
 	}
 
 	// Spin up a server for each test case
 	servers := make(map[string]*server.Server, len(testCases))
 	for name, _ := range testCases {
-		servers[name] = server.New(port)
+		servers[name] = server.New(port, "")
 		go servers[name].Listen()
 		port++
 	}
@@ -110,6 +111,23 @@ func testBasicNGramQueries(c *client.Client) func(*testing.T) {
 		}
 	}
 }
+
+func testAdvancedNGramQueries(c *client.Client) func(*testing.T) {
+	return func(t *testing.T) {
+		c.AddSet("set_a", 1)
+		c.AddText("set_a", "AAAA")
+
+		c.AddSet("set_b", 1)
+		c.AddText("set_b", "BBBB")
+
+		response, err := c.GetProbableSet("AA")
+		assertNoError(t, err)
+		if response.Set != "set_a" {
+			t.Error("Expected set_a to be most similar")
+		}
+	}
+}
+
 
 func assertNoError(t *testing.T, e error) {
 	if e != nil {
