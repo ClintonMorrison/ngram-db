@@ -98,24 +98,23 @@ func TestDatabase_ClosestSet(t *testing.T) {
 	db.AddSet("mixed", 2)
 	db.AddText("mixed", "AABBAA")
 
-
 	db.AddSet("all_a", 2)
 	db.AddText("all_a", "AAAAAA")
 
 	db.AddSet("all_b", 2)
 	db.AddText("all_b", "BBBBBB")
 
-	name := db.ClosestSet("AAA")
+	name, _ := db.ClosestSet("AAA")
 	if name != "all_a" {
 		t.Errorf("Expected AAA to be closest to 'all_a' set, but was '%s'", name)
 	}
 
-	name = db.ClosestSet("BBB")
+	name, _ = db.ClosestSet("BBB")
 	if name != "all_b" {
 		t.Errorf("Expected BBB to be closest to 'all_b' set, but was '%s'", name)
 	}
 
-	name = db.ClosestSet("ABA")
+	name, _ = db.ClosestSet("ABA")
 	if name != "mixed" {
 		t.Errorf("Expected ABA to be closest to 'mixed' set, but was '%s'", name)
 	}

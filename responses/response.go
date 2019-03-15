@@ -65,4 +65,5 @@ type SetProbability struct {
 type ProbableSet struct {
 	Success bool `json:"success"`
 	Set string   `json:"set"`
+	Probability float64 `json:"probability"`
 }

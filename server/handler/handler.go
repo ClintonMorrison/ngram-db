@@ -110,6 +110,6 @@ func (handler *QueryHandler) getFrequency(setName string, text string) interface
 }
 
 func (handler *QueryHandler) getProbableSet(text string) interface{} {
-	setName := handler.db.ClosestSet(text)
-	return responses.ProbableSet{true, setName}
+	setName, prob := handler.db.ClosestSet(text)
+	return responses.ProbableSet{true, setName, prob}
 }

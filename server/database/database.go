@@ -96,9 +96,10 @@ func (db *Database) maxN() int {
 }
 
 
-func (db *Database) ClosestSet(text string) string {
+func (db *Database) ClosestSet(text string) (string, float64) {
 	closestSetName := ""
 	closestDistance := math.Inf(1)
+	totalDistances := float64(0)
 
 	// Build set based on text
 	n := db.maxN()
@@ -108,13 +109,20 @@ func (db *Database) ClosestSet(text string) string {
 	// Compare to each set, find most similar one
 	for setName, set := range db.Sets {
 		distance := textSet.DistanceTo(set)
+		totalDistances += distance
+
 		if distance < closestDistance {
 			closestDistance = distance
 			closestSetName = setName
 		}
 	}
 
-	return closestSetName
+	probability := float64(0)
+	if totalDistances > 0 {
+		probability = 1 - (closestDistance / totalDistances)
+	}
+
+	return closestSetName, probability
 }
 
 func (db *Database) ToFile(filename string) error {

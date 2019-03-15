@@ -106,6 +106,7 @@ func (s *Set) Copy() *Set {
 
 func (s1 *Set) DistanceTo(s2 *Set) float64 {
 	n := int(math.Min(float64(s1.N), float64(s2.N)))
+
 	ngrams1 := s1.NGrams(n)
 	ngrams2 := s2.NGrams(n)
 	ngrams := make(map[NGram]bool)
